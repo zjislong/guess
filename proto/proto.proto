@@ -1,0 +1,225 @@
+//syntax = "proto3";
+enum msgID {
+    none = 0;
+	//登陆
+    c_get_player_id = 1001;
+    s_get_player_id = 1002;
+	c_login = 1003;
+	s_login = 1004;
+	c_heart = 1005;
+	s_heart = 1006;
+    //大厅
+    c_player_info = 1101;
+    s_player_info = 1103;
+	c_start_match = 1104;
+	s_cancel_match = 1105;
+	//对局
+    s_battle_start = 1201;
+    s_battle_state = 1202;
+    s_wash_card = 1203;
+    s_pick_speaker = 1204;
+    c_pick_card = 1205;
+    s_pick_card = 1206;
+    c_speak_card = 1207;
+    s_speak_card = 1208;
+    c_follow_card = 1209;
+    s_follow_card = 1210;
+    c_show_card = 1211;
+    c_vote_card = 1212;
+    s_vote_card = 1213;
+    s_single_game_end = 1214;
+    s_battle_end = 1215;
+	//排行榜
+	c_rank_info = 1301;
+	s_rank_info = 1302;
+}
+
+//===============================结构定义============================================
+message p_rank {
+    required string key = 1;            //key 省名或者市名或者玩家id
+    required uint32 value = 2;          //积分
+    required uint32 rank = 3;           //排名
+    required uint32 title = 4;          //称号 只有key是玩家时有效
+    required string name = 5;           //昵称
+    required string head = 6;           //头像
+    required string gender = 7;         //性别
+}
+
+message p_room {
+    required uint32 root_id = 1;      //房间id
+    required uint32 type = 2;  //房间类型 1新手 2标准 3精英 4专家
+}
+
+message p_target {
+    required uint32 pos = 1; //位置
+    required string target_id = 2;      //对手id
+    required string target_name = 3;    //对手昵称
+    required string target_head = 4;    //对手头像
+    required string target_gender = 5;  //对手性别
+}
+
+message p_score {
+    required uint32 id = 1; //编号
+    required string player_id = 2; //玩家id
+    required uint32 score = 3; //得分
+}
+
+message p_card_vote {
+    required uint32 cardID = 1; //卡牌id
+    required uint32 vote = 2; //得票数
+}
+
+//===============================登陆流程=========================================
+//1001 获取player_id
+message c_get_player_id {
+    required string code = 1;         //登陆code
+}
+
+//1002 返回player_id
+message s_get_player_id {
+    required string player_id = 1;    //玩家id
+}
+
+//1003 登陆
+message c_login {
+    required string player_id = 1;    //玩家id
+    required string name = 2;         //昵称
+    required string head = 3;         //头像
+    required string gender = 4;       //性别
+    required string city = 5;         //市
+    required string province = 6;     //省
+    required string country = 7;      //国
+}
+
+//1004 登陆返回
+message s_login {
+    required string player_id = 1;    //玩家id
+}
+
+//1005 心跳请求
+message c_heart {
+}
+
+//1006 心跳返回
+message s_heart {
+    required uint32 timestamp = 1;  //服务器时间戳
+}
+
+//===============================大厅=========================================
+//1101 玩家信息
+message c_player_info {
+    required uint32 gold = 1;           //金币
+    required uint32 score = 2;           //积分
+}
+
+//1102 玩家信息
+message s_player_info {
+    required uint32 gold = 1;           //金币
+    required uint32 score = 2;           //积分
+}
+
+//1103 匹配
+message c_start_match {
+    required uint32 type = 1;  //房间类型 1新手 2标准 3精英 4专家
+}
+
+//1104 退出匹配
+message s_cancel_match {
+}
+
+//===============================对战=========================================
+//1201 对战开始
+message s_battle_start {
+    repeated p_target targets = 1;  //对手
+}
+
+//1202 对战状态
+message s_battle_status {
+    required uint32 status = 1; //状态 1讲述阶段 2混淆阶段 3答题阶段 4积分阶段
+    required uint32 end_time = 2;   //当前状态结束时间戳
+}
+
+//1203 洗牌
+message s_wash_card {
+    repeated uint32 cardIDs = 1;    //新的手牌
+}
+
+//1204 指定讲述人
+message s_pick_speaker {
+    required uint32 pos = 1; //编号
+    required string player_id = 2; //讲述人id
+}
+
+//1205 讲述人盖牌
+message c_pick_card {
+    required uint32 cardID = 1; //卡牌id
+}
+
+//1206 讲述人盖牌
+message s_pick_card {
+}
+
+//1207 讲述人讲述
+message c_speak_card {
+    required string descript = 1; //描述
+}
+
+//1208 讲述人讲述
+message s_speak_card {
+    required string descript = 1; //描述
+}
+
+//1209 听众跟牌
+message c_follow_card {
+    required uint32 cardID = 1; //卡牌id
+}
+
+//1210 听众跟牌
+message s_follow_card {
+    required uint32 pos = 1; //编号
+    required string player_id = 2;    //听众id
+}
+
+//1211 开牌
+message s_show_card {
+    repeated uint32 cardIDs = 1;    //卡牌id
+}
+
+//1212 听众投票
+message c_vote_card {
+    required uint32 cardID = 1; //卡牌id
+}
+
+//1213 听众投票
+message s_vote_card {
+    required uint32 pos = 1; //编号
+    required string player_id = 2;    //听众id
+    required uint32 cardID = 3; //卡牌id
+}
+
+//1214 公布结果
+message s_single_game_end {
+    required uint32 cardID = 1; //正确卡牌id
+    repeated p_score score = 2; //得分
+}
+
+//1215 对战结束
+message s_battle_end {
+    required string mvp = 1;    //mvp
+    required string higher = 2; //搅屎棍
+    repeated p_score score = 3; //得分
+}
+
+//=============================排行榜========================================
+//1301 请求排行榜
+message c_rank_info {
+    required string tag = 1;            //排行榜标签 "China", "Sichuan", "pvp", "personal"
+    required uint32 rank = 2;           //起点排名 返回数据是该排名到之后的10名的排行榜数据
+}
+
+//1302 排行榜返回
+message s_rank_info {
+    required string tag = 1;            //排行榜标签
+    required p_rank rank_self = 2;      //自己排行数据
+    repeated p_rank rank_info = 3;      //排行数据
+}
