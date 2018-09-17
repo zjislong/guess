@@ -1,8 +1,26 @@
 -module(user_default).
 
+-include("type.hrl").
+-include("def_active.hrl").
+-include("def_battle.hrl").
+-include("def_ets.hrl").
+-include("def_player.hrl").
+-include("def_rank.hrl").
+-include("def_room.hrl").
+-include("proto.hrl").
 -include_lib("stdlib/include/ms_transform.hrl").
 
--compile(export_all).
+-export([ob/0,
+         p/1,
+         p/2,
+         d/1,
+         d/2,
+         kill/1,
+         u8/1,
+         q/0,
+         beam2erl/1,
+         gm_time/6,
+         l/1]).
 
 ob() ->
     observer:start().
@@ -33,8 +51,16 @@ kill(Process) ->
     exit(p(Process), kill).
 
 %%erlang中文字符串格式化输出
-u8(String) ->
-    io:format("~ts~n", [unicode:characters_to_list(list_to_binary(String))]).
+u8(String) when is_list(String) ->
+    try list_to_binary(String) of
+        Bin ->
+            u8(Bin)
+    catch
+        _:_:_->
+            io:format("~ts~n", [String])
+    end;
+u8(Bin) when is_binary(Bin) ->
+    io:format("~ts~n", [Bin]).
 
 q() ->
     io:format("can not stop sever~n").
@@ -48,3 +74,12 @@ beam2erl(File) ->
         _ ->
             error
     end.
+
+gm_time(Y, M, D, H, Mu, S) ->
+    Now = erlang:system_time(second),
+    GMTime = misc:datetime_to_seconds({{Y, M, D}, {H, Mu, S}}),
+    Diff = GMTime - Now,
+    public_data:put(gm_time, Diff).
+
+l(Module) ->
+    rpc:multicall(c, l, [Module]).
