@@ -12,7 +12,10 @@
 %% API
 -export([unixtime/0,
     longunixtime/0,
+    random_int/2,
     random_list/2,
+    random_list2/1,
+    random_list2/2,
     term_to_bitstring/1,
     bitstring_to_term/2,
     seconds_to_datetime/1,
@@ -31,6 +34,12 @@ unixtime() ->
 -spec longunixtime() -> non_neg_integer().
 longunixtime() ->
     erlang:system_time(millisecond).
+
+%% 从[Lower...Higher]包括边界的整数区间中随机一个数
+random_int(Lower, Higher) when Lower =< Higher ->
+	rand:uniform(Higher -Lower+1) +Lower-1;
+random_int(Higher, Lower) ->
+	random_int(Lower, Higher).
 
 %% 从列表List中随机选取SelectNum个元素，组成新的列表，新列表的元素排列顺序与其在List中顺序相同
 -spec random_list(List :: [term()], SelectNum :: non_neg_integer()) -> {[term()], [term()]}.
@@ -52,6 +61,42 @@ random_list([Head| Rest], SelectNum, Len, Result, NotSelect) ->
         false ->
             random_list(Rest, SelectNum, Len-1, Result, [Head|NotSelect])
     end.
+
+%% 将一个列表元素随机一遍
+-spec random_list2(List :: [term()]) -> [term()].
+random_list2(List) ->
+	Len = length(List),
+	random_list2(List, Len, Len, []).
+%% 从一个列表中随机抽取N个，顺序随机 ，N可以超过界限
+-spec random_list2(List :: [term()], N :: non_neg_integer()) -> [term()].
+random_list2(List, N) ->
+	random_list2(List, N, length(List),[]).
+
+random_list2(_List, 0, _Length, Result) ->
+	Result;
+random_list2(List, N, Length, Result) ->
+	if Length =:= 1 ->
+            Select = hd(List),
+            Rest = [],
+            random_list2(Rest, N-1, Length-1, [Select|Result]);
+	   Length =:= 0 ->
+            Result;
+	   true ->
+            Rand = rand:uniform(Length),
+            {value, Select, Rest} = nth_take(Rand, List),
+            random_list2(Rest, N-1, Length-1, [Select|Result])
+	end.
+
+%% 删除第N个，并返回新列表
+%% return: {value, NthVar, NewList} | false
+nth_take(N, List) ->
+	nth_take(N, List, []).
+nth_take(1, [NthVar|Tail], Temp) ->
+	{value, NthVar, lists:reverse(Temp, Tail)};
+nth_take(_N, [], _Temp) ->
+	false;
+nth_take(N, [Hd | Tail], Temp) ->
+	nth_take(N-1, Tail, [Hd|Temp]).
 
 %% term序列化，term转换为bitstring格式，e.g., [{a},1] => <<"[{a},1]">>
 -spec term_to_bitstring(Term :: term()) -> bitstring().
