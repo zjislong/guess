@@ -20,7 +20,8 @@
          q/0,
          beam2erl/1,
          gm_time/6,
-         l/1]).
+         l/1,
+         lm/0]).
 
 ob() ->
     observer:start().
@@ -83,3 +84,7 @@ gm_time(Y, M, D, H, Mu, S) ->
 
 l(Module) ->
     rpc:multicall(c, l, [Module]).
+
+lm() ->
+    rpc:multicall(c, lm, []).
+
