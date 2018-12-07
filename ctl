@@ -34,6 +34,9 @@ case $1 in
         erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
         tar cvf guess_server.tar bin deps/ebin ebin priv ctl
         ;;
+    lm)
+        erl -name stop@127.0.0.1 -noshell -hidden %cookie% -eval "{[ReloadMod], _} = rpc:call('%nodename%', user_default, lm, [], 5000),io:format(\"Reload:~p\", [ReloadMod]),erlang:halt(0)."
+        ;;
     *)
         echo make: compile all code
         echo live: start server live
@@ -43,6 +46,7 @@ case $1 in
         echo node_list: list all nodes
         echo debug_node: remsh optional server
 	echo patch: create ptach tar file
+	echo lm: reload beam files which have changed
         ;;
 esac
 cd ${pwd}
