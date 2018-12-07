@@ -31,6 +31,10 @@ if "%1" == "make" (
 ) else if "%1" == "patch" (
 	erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
 	7z a -ttar guess_server.tar bin deps/ebin ebin priv ctl
+) else if "%1" == "indent" (
+	escript %~dp0tools/indent/bin/indent
+) else if "%1" == "lm" (
+	erl -name stop@127.0.0.1 -noshell -hidden %cookie% -eval "{[ReloadMod], _} = rpc:call('%nodename%', user_default, lm, [], 5000),io:format(\"Reload:~p\", [ReloadMod]),erlang:halt(0)."
 ) else (
 	echo make: compile all code
 	echo start: start server
@@ -41,4 +45,6 @@ if "%1" == "make" (
 	echo plt: build dialyzer plt
 	echo dialyzer: dialyzer code
 	echo patch: create ptach tar file
+        echo indent: indent all code
+	echo lm: reload beam files which have changed
 )
