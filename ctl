@@ -13,7 +13,7 @@ case $1 in
         erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
         ;;
     start)
-        erl -name ${nodename} ${pa} ${config} ${cookie} ${option} -s server start
+        nohup erl -s server start -name ${nodename} ${pa} ${config} ${cookie} ${option} &
         ;;
     stop)
         erl -name stop_${rand}@127.0.0.1 -noshell -hidden ${cookie} -eval "rpc:call('${nodename}', server, stop, [], 5000),erlang:halt(0)."
