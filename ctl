@@ -6,14 +6,11 @@ nodename=`escript bin/node_name`
 pa='-pa ebin deps/ebin'
 config='-config config/app.config'
 cookie='-setcookie guess'
-option='+P 100000 +K true -detached'
+option='+P 100000 +K true -noinput'
 rand=`openssl rand -hex 10`
 case $1 in
     make)
         erl -noshell -pa deps/ebin tools/mmake/ebin -eval "mmake:all(8),erlang:halt(0)."
-        ;;
-    live)
-        erl -name ${nodename} ${pa} ${config} ${cookie} -s server start
         ;;
     start)
         erl -name ${nodename} ${pa} ${config} ${cookie} ${option} -s server start
@@ -39,7 +36,6 @@ case $1 in
         ;;
     *)
         echo make: compile all code
-        echo live: start server live
 	echo start: start server
 	echo stop: stop server
         echo debug: remsh server
