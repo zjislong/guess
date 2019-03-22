@@ -32,3 +32,10 @@ BEGIN
     EXECUTE exectable;
 END;/
 DELIMITER ;
+
+CREATE TABLE IF NOT EXISTS `GPlayerData` (
+  `PlayerID` varchar(100) NOT NULL COMMENT 'UID',
+  `Key` varchar(20) NOT NULL COMMENT 'Key',
+  `Value` varchar(100) DEFAULT '' COMMENT '值',
+  PRIMARY KEY (`PlayerID`, `Key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='玩家杂项数据';
