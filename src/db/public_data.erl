@@ -17,7 +17,7 @@ get(Key, Default) ->
         {ok, Value} ->
             misc:bitstring_to_term(Value, Default);
         _ ->
-            case db:query("select `Value` from GPlayerData where `Key` = ?", [Key]) of
+            case db:query("select `Value` from GPublicData where `Key` = ?", [Key]) of
                 [[Value]] ->
                     redis:set(RedisKey, Value),
                     misc:bitstring_to_term(Value, Default);
@@ -28,7 +28,7 @@ get(Key, Default) ->
 
 put(Key, Value) ->
     RedisKey = key(Key),
-    db:query("replace into GPlayerData values (?, ?)", [Key, misc:term_to_bitstring(Value)]),
+    db:query("replace into GPublicData values (?, ?)", [Key, misc:term_to_bitstring(Value)]),
     redis:set(RedisKey, misc:term_to_bitstring(Value)).
 
 add(Key) ->
@@ -36,10 +36,10 @@ add(Key) ->
     get(Key, 0),
     case redis:incr(RedisKey) of
         {ok, Value} ->
-            db:query("replace into GPlayerData values (?, ?)", [Key, Value]),
+            db:query("replace into GPublicData values (?, ?)", [Key, Value]),
             misc:bitstring_to_term(Value, 1);
         _ ->
-            db:query("replace into GPlayerData values (?, ?)", [Key, <<"1">>]),
+            db:query("replace into GPublicData values (?, ?)", [Key, <<"1">>]),
             1
     end.
 %%====================================================================
